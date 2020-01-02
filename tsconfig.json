@@ -9,10 +9,10 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["*"]
     },
     "resolveJsonModule": true
   },
-  "include": ["lib/**/*", "index.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["lib/**/*", "index.ts", "test/**/*.spec.ts", "types/*"],
+  "exclude": ["node_modules"]
 }

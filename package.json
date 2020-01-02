@@ -4,7 +4,9 @@
   "description": "Update Now DNS when your IP changes",
   "main": "build/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dev": "ts-node ./index.ts",
+    "build": "tsc -p ./tsconfig.build.json"
   },
   "repository": {
     "type": "git",
@@ -17,19 +19,19 @@
   },
   "homepage": "https://github.com/samtgarson/now-ddns#readme",
   "devDependencies": {
+    "@ef-carbon/tspm": "^2.2.5",
     "@types/jest": "^24.0.25",
     "@types/node": "^13.1.2",
     "axios": "^0.19.0",
     "jest": "^24.9.0",
+    "jest-mock-axios": "^3.2.0",
+    "now": "^16.7.0",
     "pkg": "^4.4.2",
     "ts-jest": "^24.2.0",
     "typescript": "^3.7.4"
   },
   "jest": {
     "preset": "ts-jest",
-    "roots": [
-      "<rootDir>"
-    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
@@ -44,9 +46,10 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1"
-    }
+    },
+    "restoreMocks": true
   },
   "dependencies": {
-    "commander": "^4.0.1"
+    "commander": "github:shadowspawn/commander.js#feature/async"
   }
 }

@@ -1,4 +1,9 @@
-import { createClient } from '../../lib/client'
+import { createClient } from '@/lib/util/client'
+import axios from 'axios'
+
+jest.mock('axios', () => ({
+  create: jest.fn()
+}))
 
 describe('createClient', () => {
   it('is a function', () => {
@@ -16,7 +21,7 @@ describe('createClient', () => {
       it('succeeds', () => {
         let client = createClient(token)
 
-        expect(client.defaults).toMatchObject({
+        expect(axios.create).toHaveBeenCalledWith({
           baseURL: 'https://api.zeit.co',
           headers: {
             Authorization: `Bearer ${token}`

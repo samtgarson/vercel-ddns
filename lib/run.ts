@@ -1,17 +1,6 @@
-import Commander from 'commander'
+import { DDNSOptions } from '@/types/options'
 
-const program = new Commander.Command()
-
-program
-  .requiredOption('-t, --token <token>', 'Your Zeit API token.')
-  .parse(process.argv)
-
-const run = async (token: string) => {
-  console.log(token)
+export const run = async (options: DDNSOptions) => {
+  console.log(options.token)
 }
-
-const { token } = program
-run(token)
-
-
 
