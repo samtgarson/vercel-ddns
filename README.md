@@ -1,3 +1,5 @@
+![now-ddns icon](./assets/icon.svg)
+
 **now-ddns**_—Update Now DNS when your IP changes_
 
 `now-ddns` _(Now Dynamic DNS)_ is an attempt to write a small package which can be run periodically to update a now.sh DNS entry when a machine's public IP changes.
