@@ -1,0 +1,52 @@
+{
+  "name": "now-ddns",
+  "version": "0.0.1",
+  "description": "Update Now DNS when your IP changes",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samtgarson/now-ddns.git"
+  },
+  "author": "samtgarson@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samtgarson/now-ddns/issues"
+  },
+  "homepage": "https://github.com/samtgarson/now-ddns#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.25",
+    "@types/node": "^13.1.2",
+    "axios": "^0.19.0",
+    "jest": "^24.9.0",
+    "pkg": "^4.4.2",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.4"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "roots": [
+      "<rootDir>"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": ".+\\.spec\\.tsx?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    }
+  },
+  "dependencies": {
+    "commander": "^4.0.1"
+  }
+}
