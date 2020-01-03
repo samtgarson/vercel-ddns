@@ -98,11 +98,7 @@ describe('check', () => {
 
   describe('when wtfismyip fails', () => {
     beforeEach(() => {
-      const ipPromise = mockAxios
-        .getReqByUrl('https://wtfismyip.com/text')
-        .promise
-
-      mockAxios.mockError({}, ipPromise)
+      mockAxios.mockError({}, mockAxios.getReqByUrl('https://wtfismyip.com/text'))
 
       mockAxios.mockResponseFor(
         { url: `/v2/domains/${options.domainName}/records` },
@@ -122,11 +118,10 @@ describe('check', () => {
         { status: 200, data: currentIP }
       )
 
-      const zeitPromise = mockAxios
-        .getReqByUrl(`/v2/domains/${options.domainName}/records`)
-        .promise
-
-      mockAxios.mockError({ isAxiosError: true, response: { status: 401 } }, zeitPromise)
+      mockAxios.mockError(
+        { isAxiosError: true, response: { status: 401 } },
+        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
+      )
     })
 
     it('errors', () => {
@@ -145,7 +140,10 @@ describe('check', () => {
         .getReqByUrl(`/v2/domains/${options.domainName}/records`)
         .promise
 
-      mockAxios.mockError({ isAxiosError: true, response: { status: 404 } }, zeitPromise)
+      mockAxios.mockError(
+        { isAxiosError: true, response: { status: 404 } },
+        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
+      )
     })
 
     it('errors', () => {
@@ -160,11 +158,10 @@ describe('check', () => {
         { status: 200, data: currentIP }
       )
 
-      const zeitPromise = mockAxios
-        .getReqByUrl(`/v2/domains/${options.domainName}/records`)
-        .promise
-
-      mockAxios.mockError({ isAxiosError: true, response: { status: 500 } }, zeitPromise)
+      mockAxios.mockError(
+        { isAxiosError: true, response: { status: 500 } },
+        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
+      )
     })
 
     it('errors', () => {
@@ -179,11 +176,10 @@ describe('check', () => {
         { status: 200, data: currentIP }
       )
 
-      const zeitPromise = mockAxios
-        .getReqByUrl(`/v2/domains/${options.domainName}/records`)
-        .promise
-
-      mockAxios.mockError({}, zeitPromise)
+      mockAxios.mockError(
+        {},
+        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
+      )
     })
 
     it('errors', () => {
