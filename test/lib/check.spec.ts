@@ -1,8 +1,7 @@
 import mockAxios from 'jest-mock-axios'
 import { check } from '@/lib/check'
-import { CheckErrors } from '@/lib/util/errors'
+import { Errors } from '@/lib/util/errors'
 import { NowClient } from '@/lib/util/now-client'
-// import { fetchRecord } from '@/lib/util/__mocks__/now-client'
 import { DDNSOptions } from '@/types/options'
 import {DNSRecord} from '@/types/now'
 import { mocked } from 'ts-jest/utils'
@@ -99,7 +98,7 @@ describe('check', () => {
     })
 
       it('errors', () => {
-        return expect(result).rejects.toEqual(new Error(CheckErrors.MISMATCH_ERROR))
+        return expect(result).rejects.toEqual(new Error(Errors.MISMATCH_ERROR))
       })
     })
   })
@@ -112,7 +111,7 @@ describe('check', () => {
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.FETCH_CURRENT_IP_ERROR))
+      return expect(result).rejects.toEqual(new Error(Errors.FETCH_CURRENT_IP_ERROR))
     })
   })
 
@@ -129,7 +128,7 @@ describe('check', () => {
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_ACCESS_DENIED_ERROR))
+      return expect(result).rejects.toEqual(new Error(Errors.NOW_ACCESS_DENIED_ERROR))
     })
   })
 
@@ -146,7 +145,7 @@ describe('check', () => {
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.DOMAIN_NOT_FOUND_ERROR))
+      return expect(result).rejects.toEqual(new Error(Errors.DOMAIN_NOT_FOUND_ERROR))
     })
   })
 
@@ -163,7 +162,7 @@ describe('check', () => {
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_UNKNOWN_ERROR))
+      return expect(result).rejects.toEqual(new Error(Errors.NOW_UNKNOWN_ERROR))
     })
   })
 
@@ -180,7 +179,7 @@ describe('check', () => {
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_UNKNOWN_ERROR))
+      return expect(result).rejects.toEqual(new Error(Errors.NOW_UNKNOWN_ERROR))
     })
   })
 })

@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { NowClient } from './util/now-client'
 import { DDNSOptions } from '@/types/options'
-import { CheckErrors } from './util/errors'
+import { Errors } from './util/errors'
 import {DNSRecord} from '@/types/now'
 
 const {
@@ -10,7 +10,7 @@ const {
   DOMAIN_NOT_FOUND_ERROR,
   NOW_UNKNOWN_ERROR,
   MISMATCH_ERROR
-} = CheckErrors
+} = Errors
 
 interface AxiosErrorWithResponse<T = any> extends AxiosError {
   response: AxiosResponse<T>
@@ -52,16 +52,21 @@ const defaultCheckOptions = {
   errorOnMismatch: true
 }
 
-export const check = async (args: DDNSOptions, options: CheckOptions = defaultCheckOptions) => {
+export const check = async (
+  args: DDNSOptions, options: CheckOptions = defaultCheckOptions
+): Promise<{
+  match: boolean,
+  currentIP: string,
+  nowDNS: DNSRecord | undefined
+}> => {
   const [currentIP, nowDNS] = await Promise.all([getCurrentIP(), getNowDNS(args)])
-
   const result = { currentIP, nowDNS, match: true }
 
   if (!nowDNS || currentIP !== nowDNS.value) {
     result.match = false
   }
 
-  if (options.errorOnMismatch) {
+  if (options.errorOnMismatch && result.match === false) {
     throw new Error(MISMATCH_ERROR)
   }
 

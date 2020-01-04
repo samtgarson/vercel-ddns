@@ -11,9 +11,9 @@ program
 program
   .command('check')
   .description('Error if Now DNS does not match your IP address')
-  .requiredOption('-t, --token <token>', 'Your Zeit API token')
-  .requiredOption('-d, --domainName', 'The domain to check')
-  .option('-n, --name', 'The name of the record (or blank for root record)', '')
+  .requiredOption('-t, --token <token>', 'Your Now API token')
+  .requiredOption('-d, --domainName <domainName>', 'The domain to check')
+  .option('-n, --name <name>', 'The name of the record (or blank for root record)', '')
   .action(async (options: DDNSOptions) => {
     await check(options)
   })
@@ -21,9 +21,9 @@ program
 program
   .command('run')
   .description('Update Now DNS with your IP address if it has changed')
-  .requiredOption('-t, --token <token>', 'Your Zeit API token')
-  .requiredOption('-d, --domainName', 'The domain to check')
-  .option('-n, --name', 'The name of the record (or blank for root record)', '')
+  .requiredOption('-t, --token <token>', 'Your Now API token')
+  .requiredOption('-d, --domainName <domainName>', 'The domain to check')
+  .option('-n, --name <name>', 'The name of the record (or blank for root record)', '')
   .action(async (options: DDNSOptions) => {
     await run(options)
   })

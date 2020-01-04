@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { DNSResponse, DNSCreateResponse } from '@/types/now'
+import { DNSResponse, DNSCreateResponse, DNSRecord } from '@/types/now'
 
 export class NowClient {
   private client: AxiosInstance
@@ -28,7 +28,6 @@ export class NowClient {
       `/v2/domains/${this.domain}/records`,
       { name, value: ip, type: 'A' }
     )
-
     return uid
   }
 
