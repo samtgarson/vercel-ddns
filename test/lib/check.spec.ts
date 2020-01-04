@@ -1,8 +1,27 @@
 import mockAxios from 'jest-mock-axios'
 import { check } from '@/lib/check'
 import { CheckErrors } from '@/lib/util/errors'
+import { NowClient } from '@/lib/util/now-client'
+// import { fetchRecord } from '@/lib/util/__mocks__/now-client'
 import { DDNSOptions } from '@/types/options'
-import {DNSResponse, DNSRecord} from '@/types/now'
+import {DNSRecord} from '@/types/now'
+import { mocked } from 'ts-jest/utils'
+
+jest.mock('@/lib/util/now-client')
+
+const currentIP = '1.2.3.4'
+const remoteIP = '5.6.7.8'
+
+const mockDNSRecord: DNSRecord = {
+  name: 'name',
+  value: currentIP,
+  id: 'id',
+  slug: 'slug',
+  type: 'A',
+  created: Date.now().valueOf(),
+  creator: 'sam',
+  updated: Date.now().valueOf()
+}
 
 const options: DDNSOptions = {
   token: 'token',
@@ -10,16 +29,11 @@ const options: DDNSOptions = {
   name: 'name'
 }
 
-let errorOnMismatch: boolean
+const MockClient = mocked(NowClient)
+const fetchRecord = jest.fn().mockResolvedValue(mockDNSRecord)
+MockClient.prototype.fetchRecord = fetchRecord
 
-const currentIP = '1.2.3.4'
-const remoteIP = '5.6.7.8'
-
-const zeitResponse = (value: string = currentIP, name: string = options.name): DNSResponse<Partial<DNSRecord>> => ({
-  records: [
-    { name, value, id: 'id' }
-  ]
-})
+const errorOnMismatch = false
 
 it('exports a function', () => {
   expect(check).toBeInstanceOf(Function)
@@ -28,67 +42,61 @@ it('exports a function', () => {
 describe('check', () => {
   let result: ReturnType<typeof check>
 
-  beforeAll(() => {
-    errorOnMismatch = false
-  })
-
-  beforeEach(async () => {
-    result = check(options, { errorOnMismatch })
-  })
-
   it('calls wtfismyip', () => {
+    check(options)
     expect(mockAxios.get).toHaveBeenCalledWith('https://wtfismyip.com/text')
-  })
-
-  it('calls zeit api', () => {
-    expect(mockAxios.get).toHaveBeenCalledWith(`/v2/domains/${options.domainName}/records`)
   })
 
   describe('when there is a match', () => {
     beforeEach(() => {
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
       )
-
-      mockAxios.mockResponseFor(
-        { url: `/v2/domains/${options.domainName}/records` },
-        { status: 200, data: zeitResponse(currentIP) }
-      )
     })
 
-    it('does not error', () => {
+    it('does not error', async () => {
       return expect(result).resolves.toMatchObject({
+        match: true,
         currentIP,
-        nowDNS: { value: currentIP, id: 'id' }
+        nowDNS: { value: currentIP, id: mockDNSRecord.id }
       })
     })
   })
 
   describe('when there is no match', () => {
     beforeEach(() => {
+      fetchRecord.mockResolvedValueOnce({ ...mockDNSRecord, value: remoteIP })
+
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
-      )
-
-      mockAxios.mockResponseFor(
-        { url: `/v2/domains/${options.domainName}/records` },
-        { status: 200, data: zeitResponse(remoteIP) }
       )
     })
 
     it('does not error', () => {
       return expect(result).resolves.toMatchObject({
+        match: false,
         currentIP,
         nowDNS: { value: remoteIP, id: 'id' }
       })
     })
 
     describe('when errorOnMismatch is true', () => {
-      beforeAll(() => {
-        errorOnMismatch = true
-      })
+    beforeEach(() => {
+      fetchRecord.mockResolvedValueOnce({ ...mockDNSRecord, value: remoteIP })
+
+      result = check(options, { errorOnMismatch: true })
+
+      mockAxios.mockResponseFor(
+        { url: 'https://wtfismyip.com/text' },
+        { status: 200, data: currentIP }
+      )
+    })
 
       it('errors', () => {
         return expect(result).rejects.toEqual(new Error(CheckErrors.MISMATCH_ERROR))
@@ -98,12 +106,9 @@ describe('check', () => {
 
   describe('when wtfismyip fails', () => {
     beforeEach(() => {
-      mockAxios.mockError({}, mockAxios.getReqByUrl('https://wtfismyip.com/text'))
+      result = check(options, { errorOnMismatch })
 
-      mockAxios.mockResponseFor(
-        { url: `/v2/domains/${options.domainName}/records` },
-        { status: 200, data: zeitResponse(currentIP) }
-      )
+      mockAxios.mockError({}, mockAxios.getReqByUrl('https://wtfismyip.com/text'))
     })
 
     it('errors', () => {
@@ -111,38 +116,32 @@ describe('check', () => {
     })
   })
 
-  describe('when zeit throws 401', () => {
+  describe('when now throws 401', () => {
     beforeEach(() => {
+      fetchRecord.mockRejectedValue({ isAxiosError: true, response: { status: 401 } })
+
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
-      )
-
-      mockAxios.mockError(
-        { isAxiosError: true, response: { status: 401 } },
-        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
       )
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.ZEIT_ACCESS_DENIED_ERROR))
+      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_ACCESS_DENIED_ERROR))
     })
   })
 
-  describe('when zeit throws 404', () => {
+  describe('when now throws 404', () => {
     beforeEach(() => {
+      fetchRecord.mockRejectedValue({ isAxiosError: true, response: { status: 404 } })
+
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
-      )
-
-      const zeitPromise = mockAxios
-        .getReqByUrl(`/v2/domains/${options.domainName}/records`)
-        .promise
-
-      mockAxios.mockError(
-        { isAxiosError: true, response: { status: 404 } },
-        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
       )
     })
 
@@ -151,39 +150,37 @@ describe('check', () => {
     })
   })
 
-  describe('when zeit throws 500', () => {
+  describe('when now throws 500', () => {
     beforeEach(() => {
+      fetchRecord.mockRejectedValue({ isAxiosError: true, response: { status: 500 } })
+
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
       )
-
-      mockAxios.mockError(
-        { isAxiosError: true, response: { status: 500 } },
-        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
-      )
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.ZEIT_UNKNOWN_ERROR))
+      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_UNKNOWN_ERROR))
     })
   })
 
-  describe('when zeit throws unknown error', () => {
+  describe('when now throws unknown error', () => {
     beforeEach(() => {
+      fetchRecord.mockRejectedValue({})
+
+      result = check(options, { errorOnMismatch })
+
       mockAxios.mockResponseFor(
         { url: 'https://wtfismyip.com/text' },
         { status: 200, data: currentIP }
       )
-
-      mockAxios.mockError(
-        {},
-        mockAxios.getReqByUrl(`/v2/domains/${options.domainName}/records`)
-      )
     })
 
     it('errors', () => {
-      return expect(result).rejects.toEqual(new Error(CheckErrors.ZEIT_UNKNOWN_ERROR))
+      return expect(result).rejects.toEqual(new Error(CheckErrors.NOW_UNKNOWN_ERROR))
     })
   })
 })

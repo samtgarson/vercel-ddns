@@ -31,6 +31,7 @@
     "typescript": "^3.7.4"
   },
   "jest": {
+    "testEnvironment": "node",
     "preset": "ts-jest",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
@@ -47,7 +48,9 @@
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1"
     },
-    "restoreMocks": true
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ]
   },
   "dependencies": {
     "commander": "github:shadowspawn/commander.js#feature/async"

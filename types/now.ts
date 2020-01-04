@@ -14,3 +14,7 @@ export interface DNSRecord {
 export interface DNSResponse<T = DNSRecord> {
   records: T[]
 }
+
+export interface DNSCreateResponse {
+  uid: string
+}

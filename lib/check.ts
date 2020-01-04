@@ -1,14 +1,14 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
-import { createClient } from './util/client'
+import { NowClient } from './util/now-client'
 import { DDNSOptions } from '@/types/options'
-import { DNSResponse } from '@/types/now'
 import { CheckErrors } from './util/errors'
+import {DNSRecord} from '@/types/now'
 
 const {
   FETCH_CURRENT_IP_ERROR,
-  ZEIT_ACCESS_DENIED_ERROR,
+  NOW_ACCESS_DENIED_ERROR,
   DOMAIN_NOT_FOUND_ERROR,
-  ZEIT_UNKNOWN_ERROR,
+  NOW_UNKNOWN_ERROR,
   MISMATCH_ERROR
 } = CheckErrors
 
@@ -31,18 +31,15 @@ const getCurrentIP = async () => {
 
 const getNowDNS = async ({ token, domainName, name }: DDNSOptions) => {
   try {
-    const client = createClient(token)
-    const { data: { records } } = await client.get<DNSResponse>(`/v2/domains/${domainName}/records`)
-
-    const { value, id } = records.find(r => r.name === name) || {}
-    return { value, id }
+    const client = new NowClient({ token, domain: domainName })
+    return await client.fetchRecord(name)
   } catch (e) {
     if (isAxiosError(e) && [401,403].includes(e.response.status)) {
-      throw new Error(ZEIT_ACCESS_DENIED_ERROR)
+      throw new Error(NOW_ACCESS_DENIED_ERROR)
     } else if (isAxiosError(e) && e.response.status === 404) {
       throw new Error(DOMAIN_NOT_FOUND_ERROR)
     } else {
-      throw new Error(ZEIT_UNKNOWN_ERROR)
+      throw new Error(NOW_UNKNOWN_ERROR)
     }
   }
 }
@@ -58,10 +55,17 @@ const defaultCheckOptions = {
 export const check = async (args: DDNSOptions, options: CheckOptions = defaultCheckOptions) => {
   const [currentIP, nowDNS] = await Promise.all([getCurrentIP(), getNowDNS(args)])
 
-  if (currentIP !== nowDNS.value && options.errorOnMismatch) {
+  const result = { currentIP, nowDNS, match: true }
+
+  if (!nowDNS || currentIP !== nowDNS.value) {
+    result.match = false
+  }
+
+  if (options.errorOnMismatch) {
     throw new Error(MISMATCH_ERROR)
   }
-  return { currentIP, nowDNS }
+
+  return  result
 }
 
 
