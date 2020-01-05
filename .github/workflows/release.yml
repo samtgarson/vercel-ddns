@@ -1,0 +1,73 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-main:
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - run: npm ci
+      - run: npm run build
+      - run: npm run dist
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - name: Upload Release Asset (Mac OSX)
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/now-ddns-macos
+          asset_name: now-ddns-darwin
+
+      - name: Upload Release Asset (Windows)
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/now-ddns-win.exe
+          asset_name: now-ddns-win
+
+      - name: Upload Release Asset (Linux x64)
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/now-ddns-linux
+          asset_name: now-ddns-linux-x64
+
+      - uses: uraimo/run-on-arch-action@master
+        with:
+          architecture: armv7
+          distribution: buster
+          run: |
+            wget https://nodejs.org/dist/v12.14.0/node-v12.14.0-linux-armv7l.tar.xz
+            tar xvzf node-v12.14.0-linux-armv7l.tar.xz
+            cp node-v12.14.0-linux-armv7l/* ~/opt/node
+            PATH=$PATH:~/opt/node
+
+            npm i
+            npm run build
+            npm run dist:arm

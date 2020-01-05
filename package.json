@@ -2,11 +2,13 @@
   "name": "now-ddns",
   "version": "0.0.1",
   "description": "Update Now DNS when your IP changes",
-  "main": "build/index.js",
+  "bin": "build/index.js",
   "scripts": {
     "test": "jest",
     "dev": "ts-node ./index.ts",
-    "build": "tsc -p ./tsconfig.build.json"
+    "build": "tsc -p ./tsconfig.build.json",
+    "dist": "pkg --out-path ./dist",
+    "dist:arm": "pkg --out-path ./dist --targets linux-armv7"
   },
   "repository": {
     "type": "git",
@@ -50,7 +52,12 @@
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup.js"
-    ]
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.test.json"
+      }
+    }
   },
   "dependencies": {
     "commander": "github:shadowspawn/commander.js#feature/async"

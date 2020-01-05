@@ -6,8 +6,8 @@ import { Errors } from './util/errors'
 
 const updateDNS = async (
   options: DDNSOptions,
-  nowDNS: DNSRecord,
-  currentIP: string
+  currentIP: string,
+  nowDNS?: DNSRecord
 ) => {
   const client = new NowClient({
     token: options.token,
@@ -35,6 +35,6 @@ export const run = async (options: DDNSOptions) => {
 
   if (match) return
 
-  return await updateDNS(options, nowDNS, currentIP)
+  return await updateDNS(options, currentIP, nowDNS)
 }
 

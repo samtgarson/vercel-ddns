@@ -20,7 +20,7 @@ const isAxiosError = (e: any): e is AxiosErrorWithResponse => (
   e.isAxiosError && e.response
 )
 
-const getCurrentIP = async () => {
+const getCurrentIP = async (): Promise<string> => {
   try {
     const { data } = await axios.get<string>('https://wtfismyip.com/text')
     return data.trim()
@@ -57,9 +57,11 @@ export const check = async (
 ): Promise<{
   match: boolean,
   currentIP: string,
-  nowDNS: DNSRecord | undefined
+  nowDNS?: DNSRecord
 }> => {
   const [currentIP, nowDNS] = await Promise.all([getCurrentIP(), getNowDNS(args)])
+  if (!currentIP) throw new Error(FETCH_CURRENT_IP_ERROR)
+
   const result = { currentIP, nowDNS, match: true }
 
   if (!nowDNS || currentIP !== nowDNS.value) {

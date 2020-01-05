@@ -7,8 +7,10 @@ import { DDNSOptions } from './types/options'
 const logPrefix = () => `[${new Date().toISOString().replace('T', ' ')}]`
 
 program
+  .name('now-ddns')
+  .usage('command [options]')
   .version(pkgJson.version)
-  .description('pkgJson.description')
+  .description(pkgJson.description)
 
 program
   .command('check')
@@ -43,3 +45,8 @@ const main = async () => {
 }
 
 main()
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp()
+}
+
