@@ -4,6 +4,8 @@ import { run } from './lib/run'
 import { check } from './lib/check'
 import { DDNSOptions } from './types/options'
 
+const logPrefix = () => `[${new Date().toISOString().replace('T', ' ')}]`
+
 program
   .version(pkgJson.version)
   .description('pkgJson.description')
@@ -25,14 +27,17 @@ program
   .requiredOption('-d, --domainName <domainName>', 'The domain to check')
   .option('-n, --name <name>', 'The name of the record (or blank for root record)', '')
   .action(async (options: DDNSOptions) => {
-    await run(options)
+    const uid = await run(options)
+
+    if (uid) console.log(`${logPrefix()} SUCCESS: Created new DNS record ${uid}`)
+    else console.log(`${logPrefix()} NO CHANGE`)
   })
 
 const main = async () => {
   try {
     await program.parseAsync(process.argv)
   } catch (e) {
-    console.error(e.message)
+    console.error(`${logPrefix()} ERROR: ${e.message}`)
     process.exit(1)
   }
 }

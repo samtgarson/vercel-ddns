@@ -70,7 +70,7 @@ export const check = async (
     throw new Error(MISMATCH_ERROR)
   }
 
-  return  result
+  return result
 }
 
 
