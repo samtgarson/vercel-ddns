@@ -1,22 +1,38 @@
-name: release
-on:
-  push:
-    tags:
-      - 'v*'
+name: main
+on: [push]
 
 jobs:
-  release-main:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout
+      - uses: actions/setup-node@v1
+        name: Set Node version
+        with:
+          node-version: '10.x'
+      - run: npm ci
+        name: Install Dependencies
+      - run: npm t
+        name: Test
+  release:
+    if: contains(github.ref, 'tags/v') && success()
     runs-on: ubuntu-latest
     name: Release
     steps:
       - uses: actions/checkout@v1
+        name: Checkout
       - uses: actions/setup-node@v1
+        name: Set Node version
         with:
           node-version: '10.x'
       - run: npm ci
+        name: Install Dependencies
       - run: npm run build
+        name: Build
       - run: npm run dist
-
+        name: Package
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1.0.0
@@ -29,7 +45,7 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset (Mac OSX)
-        id: upload-release-asset
+        id: upload-release-asset-mac
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +55,7 @@ jobs:
           asset_name: now-ddns-darwin
 
       - name: Upload Release Asset (Windows)
-        id: upload-release-asset
+        id: upload-release-asset-win
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +65,7 @@ jobs:
           asset_name: now-ddns-win
 
       - name: Upload Release Asset (Linux x64)
-        id: upload-release-asset
+        id: upload-release-asset-linux-x64
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,3 +87,15 @@ jobs:
             npm i
             npm run build
             npm run dist:arm
+
+      - run: ls ./dist
+      # - name: Upload Release Asset (Linux ARMv7)
+      #   id: upload-release-asset-linux-arm
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./dist/now-ddns-linux
+      #     asset_name: now-ddns-linux-x64
+

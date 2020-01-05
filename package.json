@@ -1,14 +1,14 @@
 {
   "name": "now-ddns",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-alpha.3",
   "description": "Update Now DNS when your IP changes",
   "bin": "build/index.js",
   "scripts": {
     "test": "jest",
     "dev": "ts-node ./index.ts",
     "build": "tsc -p ./tsconfig.build.json",
-    "dist": "pkg --out-path ./dist",
-    "dist:arm": "pkg --out-path ./dist --targets linux-armv7"
+    "dist": "pkg --out-path ./dist .",
+    "dist:arm": "pkg --out-path ./dist --targets linux-armv7 ."
   },
   "repository": {
     "type": "git",
