@@ -15,7 +15,7 @@ const mockCheck = mocked(check)
 
 const options: DDNSOptions = {
   token: 'token',
-  domainName: 'domain',
+  domain: 'domain',
   name: 'name'
 }
 

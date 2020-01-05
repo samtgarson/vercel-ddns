@@ -11,7 +11,7 @@ const updateDNS = async (
 ) => {
   const client = new NowClient({
     token: options.token,
-    domain: options.domainName
+    domain: options.domain
   })
   let uid: string
 

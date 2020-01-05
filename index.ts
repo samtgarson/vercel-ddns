@@ -8,15 +8,17 @@ const logPrefix = () => `[${new Date().toISOString().replace('T', ' ')}]`
 
 program
   .name('now-ddns')
-  .usage('command [options]')
+  .usage('<command> [options]')
   .version(pkgJson.version)
   .description(pkgJson.description)
 
 program
   .command('check')
+  .storeOptionsAsProperties(false)
+  .passCommandToAction(false)
   .description('Error if Now DNS does not match your IP address')
   .requiredOption('-t, --token <token>', 'Your Now API token')
-  .requiredOption('-d, --domainName <domainName>', 'The domain to check')
+  .requiredOption('-d, --domain <domain>', 'The domain to check')
   .option('-n, --name <name>', 'The name of the record (or blank for root record)', '')
   .action(async (options: DDNSOptions) => {
     await check(options)
@@ -24,9 +26,11 @@ program
 
 program
   .command('run')
+  .storeOptionsAsProperties(false)
+  .passCommandToAction(false)
   .description('Update Now DNS with your IP address if it has changed')
   .requiredOption('-t, --token <token>', 'Your Now API token')
-  .requiredOption('-d, --domainName <domainName>', 'The domain to check')
+  .requiredOption('-d, --domain <domain>', 'The domain to check')
   .option('-n, --name <name>', 'The name of the record (or blank for root record)', '')
   .action(async (options: DDNSOptions) => {
     const uid = await run(options)

@@ -1,5 +1,5 @@
 export interface DDNSOptions {
   token: string,
-  domainName: string,
+  domain: string,
   name: string
 }

@@ -29,9 +29,9 @@ const getCurrentIP = async (): Promise<string> => {
   }
 }
 
-const getNowDNS = async ({ token, domainName, name }: DDNSOptions) => {
+const getNowDNS = async ({ token, domain, name }: DDNSOptions) => {
   try {
-    const client = new NowClient({ token, domain: domainName })
+    const client = new NowClient({ token, domain })
     return await client.fetchRecord(name)
   } catch (e) {
     if (isAxiosError(e) && [401,403].includes(e.response.status)) {

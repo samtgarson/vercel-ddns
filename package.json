@@ -60,6 +60,6 @@
     }
   },
   "dependencies": {
-    "commander": "github:shadowspawn/commander.js#feature/async"
+    "commander": "github:tj/commander.js#develop"
   }
 }

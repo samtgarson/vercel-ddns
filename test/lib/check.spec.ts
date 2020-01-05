@@ -24,7 +24,7 @@ const mockDNSRecord: DNSRecord = {
 
 const options: DDNSOptions = {
   token: 'token',
-  domainName: 'domain',
+  domain: 'domain',
   name: 'name'
 }
 
