@@ -1,0 +1,106 @@
+name: main
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout
+      - uses: actions/setup-node@v1
+        name: Set Node version
+        with:
+          node-version: '10.x'
+      - run: npm ci
+        name: Install Dependencies
+      - run: npm t
+        name: Test
+  release:
+    if: contains(github.ref, 'tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout
+      - uses: actions/setup-node@v1
+        name: Set Node version
+        with:
+          node-version: '10.x'
+      - run: npm ci
+        name: Install Dependencies
+      - run: npm run build
+        name: Build
+      - run: npm run dist
+        name: Package
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      # - name: Upload Release Asset (Mac OSX)
+      #   id: upload-release-asset-mac
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./dist/now-ddns-macos
+      #     asset_name: now-ddns-darwin
+      #     asset_content_type:	application/octet-stream
+
+      # - name: Upload Release Asset (Windows)
+      #   id: upload-release-asset-win
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./dist/now-ddns-win.exe
+      #     asset_name: now-ddns-win
+      #     asset_content_type:	application/octet-stream
+
+      # - name: Upload Release Asset (Linux x64)
+      #   id: upload-release-asset-linux-x64
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./dist/now-ddns-linux
+      #     asset_name: now-ddns-linux-x64
+      #     asset_content_type:	application/octet-stream
+
+      - uses: uraimo/run-on-arch-action@master
+        with:
+          architecture: armv7
+          distribution: buster
+          run: |
+            set -e
+            apt-get update && apt-get install -y wget
+            wget https://nodejs.org/dist/v12.14.0/node-v12.14.0-linux-armv7l.tar.xz
+            tar xf node-v12.14.0-linux-armv7l.tar.xz
+            cp node-v12.14.0-linux-armv7l/* ~/opt/node
+            PATH=$PATH:~/opt/node
+            npm i
+            npm run build
+            npm run dist:arm
+
+      - run: ls ./dist
+      # - name: Upload Release Asset (Linux ARMv7)
+      #   id: upload-release-asset-linux-arm
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./dist/now-ddns-linux
+      #     asset_name: now-ddns-linux-x64
+
