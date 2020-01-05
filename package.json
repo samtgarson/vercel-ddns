@@ -1,6 +1,6 @@
 {
   "name": "now-ddns",
-  "version": "0.0.1",
+  "version": "1.0.0-alpha",
   "description": "Update Now DNS when your IP changes",
   "bin": "build/index.js",
   "scripts": {
