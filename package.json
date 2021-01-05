@@ -24,7 +24,7 @@
     "@ef-carbon/tspm": "^2.2.5",
     "@types/jest": "^24.0.25",
     "@types/node": "^13.1.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "jest": "^24.9.0",
     "jest-mock-axios": "^3.2.0",
     "now": "^16.7.0",
